@@ -91,19 +91,20 @@
     document.addEventListener('DOMContentLoaded', function() {
         const fotoContainer = document.getElementById('foto-container');
         const addFotoButton = document.querySelector('.add-foto');
+
         addFotoButton.addEventListener('click', function() {
             const fotoRow = document.createElement('div');
             fotoRow.classList.add('form-group', 'row');
             fotoRow.innerHTML = `
-<form action="{{ route('backend.foto_produk.store') }}" method="post" enctype="multipart/form-data">
-@csrf
-<div class="col-md-12">
-<input type="hidden" name="produk_id" value="{{ $show->id }}">
-<input type="file" name="foto_produk[]" class="form-control @error('foto_produk') is-invalid @enderror">
-<button type="submit" class="btn btn-success">Simpan</button>
-</div>
-</form>
-`;
+                <form action="{{ route('backend.foto_produk.store') }}" method="post" enctype="multipart/form-data">
+                    @csrf
+                    <div class="col-md-12">
+                        <input type="hidden" name="produk_id" value="{{ $show->id }}">
+                        <input type="file" name="foto_produk[]" class="form-control @error('foto_produk') is-invalid @enderror">
+                        <button type="submit" class="btn btn-success">Simpan</button>
+                    </div>
+                </form>
+            `;
             fotoContainer.appendChild(fotoRow);
         });
     });
