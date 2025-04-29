@@ -6,7 +6,7 @@ use App\Http\Controllers\LoginController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\KategoriController;
 use App\Http\Controllers\ProdukController;
-
+use App\Http\Controllers\CustomerController;
 
 
 /*
@@ -52,3 +52,17 @@ Route::post('backend/laporan/cetakproduk', [ProdukController::class, 'cetakProdu
 
 // Frontend
 Route::get('/beranda', [BerandaController::class, 'index'])->name('beranda');
+// tambahan function detail
+Route::get('/produk/detail/{id}', [ProdukController::class, 'detail'])->name('produk.detail');
+//produk kategori
+Route::get('/produk/kategori/{id}', [ProdukController::class, 'produkKategori'])->name('produk.kategori');
+// produk all
+Route::get('/produk/all', [ProdukController::class, 'produkAll'])->name('produk.all');
+//API Google 
+Route::get('/auth/redirect', [CustomerController::class, 'redirect'])->name('auth.redirect'); 
+Route::get('/auth/google/callback', [CustomerController::class, 'callback'])->name('auth.callback');  
+// Logout 
+Route::post('/logout', [CustomerController::class, 'logout'])->name('customer.logout');
+//Route customer
+route::resource('backend/cutomer', CustomerController::class, ['as' => 'backend'])->middleware('auth');
+
