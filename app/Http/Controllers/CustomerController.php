@@ -5,9 +5,12 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request; 
 use App\Models\Customer; 
 use App\Models\User; 
+use App\Models\Kategori;
 use Illuminate\Support\Facades\Auth; 
 use Laravel\Socialite\Facades\Socialite; 
-use Illuminate\Support\Facades\Hash; 
+use Illuminate\Support\Facades\Hash;
+use App\Helpers\ImageHelper;
+
 
 class CustomerController extends Controller 
 { 
@@ -58,7 +61,17 @@ class CustomerController extends Controller
             return redirect('/')->with('error', 'Terjadi kesalahan saat login dengan Google.'); 
         } 
     } 
-    
+    public function create()
+    {
+    // Ambil semua data kategori dari database
+    $kategori = Kategori::all();
+
+    // Kirimkan data kategori ke view
+    return view('v_customer.create', [
+        'judul' => 'Tambah Customer',
+        'kategori' => $kategori,  // Pastikan variabel ini dikirim ke view
+    ]);
+    }
     public function logout(Request $request) 
     { 
         Auth::logout(); // Logout pengguna 
@@ -83,6 +96,78 @@ class CustomerController extends Controller
         'judul' => 'Detail Customer',
         'customer' => $customer
     ]);
+    }
+    public function akun($id) 
+    { 
+    $loggedInCustomerId = Auth::user()->id; 
+    
+    if ($id != $loggedInCustomerId) { 
+        return redirect()->route('customer.akun', ['id' => $loggedInCustomerId])
+                         ->with('msgError', 'Anda tidak berhak mengakses akun ini.'); 
+    } 
+    
+    $customer = Customer::where('user_id', $id)->firstOrFail(); 
+    $kategori = \App\Models\Kategori::orderBy('nama_kategori', 'asc')->get(); // ✅ fix di sini
+    
+    return view('v_customer.edit', [ 
+        'judul' => 'Customer', 
+        'subJudul' => 'Akun Customer', 
+        'edit' => $customer,
+        'kategori' => $kategori
+    ]); 
+    }
+
+    public function updateAkun(Request $request, $id) 
+    { 
+        $customer = Customer::where('user_id', $id)->firstOrFail(); 
+        $rules = [ 
+            'nama' => 'required|max:255', 
+            'hp' => 'required|min:10|max:13', 
+            'foto' => 'image|mimes:jpeg,jpg,png,gif|file|max:1024', 
+        ]; 
+        $messages = [ 
+            'foto.image' => 'Format gambar gunakan file dengan ekstensi jpeg, jpg, png, atau gif.', 
+            'foto.max' => 'Ukuran file gambar Maksimal adalah 1024 KB.'
+        ]; 
+        
+        if ($request->email != $customer->user->email) { 
+            $rules['email'] = 'required|max:255|email|unique:customer'; 
+        } 
+        if ($request->alamat != $customer->alamat) { 
+            $rules['alamat'] = 'required'; 
+        } 
+        if ($request->pos != $customer->pos) { 
+            $rules['pos'] = 'required'; 
+        } 
+
+        $validatedData = $request->validate($rules, $messages); 
+        // menggunakan ImageHelper 
+        if ($request->file('foto')) { 
+            //hapus gambar lama 
+            if ($customer->user->foto) { 
+                $oldImagePath = public_path('storage/img-customer/') . $customer->user->foto; 
+                if (file_exists($oldImagePath)) { 
+                    unlink($oldImagePath); 
+                } 
+            } 
+            $file = $request->file('foto'); 
+            $extension = $file->getClientOriginalExtension(); 
+            $originalFileName = date('YmdHis') . '_' . uniqid() . '.' . $extension; 
+            $directory = 'storage/img-customer/'; 
+            // Simpan gambar dengan ukuran yang ditentukan 
+            ImageHelper::uploadAndResize($file, $directory, $originalFileName, 385, 400); 
+            // null (jika tinggi otomatis) 
+            // Simpan nama file asli di database 
+            $validatedData['foto'] = $originalFileName; 
+        } 
+        
+        $customer->user->update($validatedData); 
+        
+        $customer->update([ 
+            'alamat' => $request->input('alamat'), 
+            'pos' => $request->input('pos'), 
+        ]); 
+        return redirect()->route('customer.akun', $id)->with('success', 'Data berhasil diperbarui'); 
     }
 
 

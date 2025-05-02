@@ -82,6 +82,7 @@
 
                         @if (Auth::check())
                         <!-- Account -->
+                         
                         <li class="header-account dropdown default-dropdown">
                             <div class="dropdown-toggle" role="button" data-toggle="dropdown" aria-expanded="true">
                                 <div class="header-btns-icon">
@@ -91,7 +92,7 @@
                                         class="fa fa-caret-down"></i></strong>
                             </div>
                             <ul class="custom-menu">
-                                <li><a href="#"><i class="fa fa-user-o"></i> Akun Saya</a></li>
+                            <li><a href="{{ route('customer.akun', ['id' => Auth::user()->id]) }}"><i class="fa fa-user-o"></i> Akun Saya</a></li>
                                 <li><a href="#"><i class="fa fa-heart-o"></i> History</a></li>
                                 <li> 
                                     <a href="#"
