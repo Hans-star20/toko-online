@@ -65,4 +65,5 @@ Route::get('/auth/google/callback', [CustomerController::class, 'callback'])->na
 Route::post('/logout', [CustomerController::class, 'logout'])->name('customer.logout');
 //Route customer
 route::resource('backend/cutomer', CustomerController::class, ['as' => 'backend'])->middleware('auth');
-
+// Route untuk Customer 
+Route::resource('backend/customer', CustomerController::class, ['as' => 'backend'])->middleware('auth');

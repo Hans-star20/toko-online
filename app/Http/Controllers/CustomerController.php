@@ -67,4 +67,23 @@ class CustomerController extends Controller
         
         return redirect('/')->with('success', 'Anda telah berhasil logout.'); 
     } 
+    public function index()
+    {
+        $data = Customer::orderBy('id', 'desc')->get();
+        return view('backend.v_customer.index', [
+        'judul' => 'Customer',
+        'sub' => 'Halaman Customer',
+        'data' => $data, // ini penting
+    ]);
+    }
+    public function show($id)
+    {
+        $customer = Customer::findOrFail($id);
+        return view('backend.v_customer.show', [
+        'judul' => 'Detail Customer',
+        'customer' => $customer
+    ]);
+    }
+
+
 }
